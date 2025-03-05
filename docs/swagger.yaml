@@ -290,11 +290,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/complexes'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Complexes
+      summary: create new complex
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/complexPost'
+            encoding: 
+                addresses:
+                    explode: true
+      responses:
+        '201': 
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/complex'
   /complexes/{complexID}:
     get:
       tags:
         - Complexes
-      summary: get info about all complexes
+      summary: get info about a complex
       parameters:
         - in: path
           required: true
@@ -309,6 +331,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/complex'
+    patch:
+      security:
+        - bearerAuth: []
+      tags: 
+        - Complexes
+      responses:
+        '200': 
+          description: Success
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Complexes
+      summary: delete complex
+      parameters:
+        - in: path
+          required: true
+          name: complexID
+          schema:
+            type: string
+            example: 67c8a269470eb63b82a023d5
+      responses:
+        '200': 
+          description: Success
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/complex'
+    
 components:
   securitySchemes:
     bearerAuth:
@@ -551,3 +602,37 @@ components:
             }
           ]
         }
+    complexPost:
+      type: object
+      properties:
+        fileName:
+          type: string
+          format: binary
+        parking:
+          type: boolean
+        security:
+          type: boolean
+        access_control:
+          type: boolean
+        concierge:
+          type: boolean
+        playground:
+          type: boolean
+        closed_area:
+          type: boolean
+        video_surveillance:
+          type: boolean
+        floors:
+          type: integer
+          default: 12
+        entrances:
+          type: integer
+          default: 3
+        name: 
+          type: string
+          default: "Test Complex"
+        addresses:
+          type: array
+          items:
+            type: string
+          default: ["1a", "1b"]
