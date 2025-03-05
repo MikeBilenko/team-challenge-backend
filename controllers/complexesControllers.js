@@ -18,6 +18,9 @@ const createComplex = async (req, res) => {
   }
   const {
     name,
+    description,
+    ltd,
+    lng,
     parking,
     addresses,
     entrances,
@@ -77,6 +80,11 @@ const createComplex = async (req, res) => {
 
   const data = {
     name,
+    description,
+    location: {
+      ltd,
+      lng,
+    },
     images,
     properties: {
       parking,

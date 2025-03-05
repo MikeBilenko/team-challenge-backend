@@ -15,6 +15,7 @@ const {
   deleteUserAddress,
   approveUserAddress,
   setModeratorStatus,
+  getUser,
 } = usersControllers;
 const { createChatRooom } = chatRoomsControllers;
 
@@ -39,5 +40,6 @@ usersRouter.patch(
   isValidId,
   setModeratorStatus
 );
+usersRouter.get("/:userId", isValidId, getUser);
 
 export default usersRouter;

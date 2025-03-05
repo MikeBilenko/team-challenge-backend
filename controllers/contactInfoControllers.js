@@ -1,32 +1,24 @@
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
+import { CheckAccess } from "../helpers/checkAccess.js";
 import HttpError from "../helpers/HttpError.js";
 import { findComplex } from "../services/complexServices.js";
 import {
   findContactInfo,
+  findContactInfoById,
   makeContactInfo,
+  removeContactInfo,
+  updateContactInfoById,
 } from "../services/contactInfoservices.js";
 
 const createContactInfo = async (req, res) => {
-  const { is_admin, buildings } = req.user;
-  const { residential_complex_id, building_id } = req.params;
+  const user = req.user;
+  const params = req.params;
+  const { residential_complex_id, building_id } = params;
 
-  const searchComplex = buildings.find((elem) => {
-    return (
-      elem.residential_complex_id.toString() ===
-      residential_complex_id.toString()
-    );
-  });
-
-  if (!is_admin && !searchComplex) {
-    throw HttpError(403, `The user is not related to the specified complex.`);
-  }
-
-  const moderator = is_admin ? false : searchComplex.moderator;
-  console.log(moderator);
-  if (!is_admin && !moderator) {
+  const { access } = await CheckAccess(params, user);
+  if (!access) {
     throw HttpError(403, "You don't have access to this action!");
   }
-
   const contactInfo = building_id
     ? await findContactInfo({ residential_complex_id, building_id })
     : await findContactInfo({
@@ -58,4 +50,64 @@ const createContactInfo = async (req, res) => {
   res.status(201).json(result);
 };
 
-export default { createContactInfo: ctrlWrapper(createContactInfo) };
+const deleteContactInfo = async (req, res) => {
+  const { contactInfoId: _id } = req.params;
+
+  const { access } = await CheckAccess(req.params, req.user);
+  if (!access) {
+    throw HttpError(403, "You don't have access to this action!");
+  }
+  const result = await removeContactInfo(_id);
+  res.json(result);
+};
+
+const updateContactInfo = async (req, res) => {
+  console.log("Date: ", new Date(1727616328141));
+  // console.log("Date now: ", new Date());
+
+  const params = req.params;
+  const { contactInfoId: _id } = params;
+  const keys = Object.keys(req.body);
+  if (keys.length === 0) {
+    throw HttpError(400, "At least one field must not be empty!");
+  }
+
+  const { access } = await CheckAccess(params, req.user);
+
+  if (!access) {
+    throw HttpError(403, "You don't have access to this action!");
+  }
+  const result = await updateContactInfoById(_id, req.body);
+  res.json(result);
+};
+
+const getContactInfo = async (req, res) => {
+  const params = req.params;
+  const { contactInfoId } = req.params;
+
+  const { access, contactInfo, searchComplex } = await CheckAccess(
+    params,
+    req.user
+  );
+  if (!access) {
+    if (contactInfo.building_id) {
+      const userBuilding = searchComplex.addresses.find(
+        (elem) =>
+          elem.building_id?.toString() === contactInfo.building_id.toString()
+      );
+
+      if (!userBuilding) {
+        throw HttpError(403, "You don't have access to this action!");
+      }
+    }
+  }
+  const result = await findContactInfoById(contactInfoId);
+  res.json(result);
+};
+
+export default {
+  createContactInfo: ctrlWrapper(createContactInfo),
+  deleteContactInfo: ctrlWrapper(deleteContactInfo),
+  updateContactInfo: ctrlWrapper(updateContactInfo),
+  getContactInfo: ctrlWrapper(getContactInfo),
+};

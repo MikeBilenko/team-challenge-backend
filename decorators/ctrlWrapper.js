@@ -3,7 +3,15 @@ const ctrlWrapper = (ctrl) => {
     try {
       await ctrl(req, res, next);
     } catch (error) {
-      next(error);
+      // next(error);
+      if (next) {
+        next(error);
+      } else {
+        console.error("Signin error:", error);
+        res
+          .status(500)
+          .json({ message: error.message || "Something went wrong" });
+      }
     }
   };
   return func;

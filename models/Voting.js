@@ -13,22 +13,33 @@ const optionSchema = new Schema({
 });
 
 const optionUserSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  isVote: {
-    type: Boolean,
-    default: false,
+  // name: {
+  //   type: String,
+  //   required: true,
+  // },
+  // isVote: {
+  //   type: Boolean,
+  //   default: false,
+  // },
+  optionId: {
+    type: Schema.Types.ObjectId,
+    ref: "votings",
   },
 });
 
+// const votedUserSchema = new Schema({
+//   _id: {
+//     type: Schema.Types.ObjectId,
+//     ref: "user",
+//   },
+//   votedUserOptions: [optionUserSchema],
+// });
 const votedUserSchema = new Schema({
-  _id: {
+  userId: {
     type: Schema.Types.ObjectId,
     ref: "user",
   },
-  votedUserOptions: [optionUserSchema],
+  userOptionsIds: [optionUserSchema],
 });
 
 const votingSchema = new Schema(

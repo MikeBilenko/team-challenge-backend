@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { handleSaveError, setUpdateSetting } from "./hooks.js";
 
-const ChatRoomShema = new Schema(
+const chatRoomShema = new Schema(
   {
     name: {
       type: String,
@@ -26,9 +26,9 @@ const ChatRoomShema = new Schema(
   { versionKey: false }
 );
 
-ChatRoomShema.post("save", handleSaveError);
-ChatRoomShema.pre("findOneAndUpdate", setUpdateSetting);
-ChatRoomShema.post("findOneAndUpdate", handleSaveError);
+chatRoomShema.post("save", handleSaveError);
+chatRoomShema.pre("findOneAndUpdate", setUpdateSetting);
+chatRoomShema.post("findOneAndUpdate", handleSaveError);
 
-const ChatRoom = model("chat_room", ChatRoomShema);
+const ChatRoom = model("chat_room", chatRoomShema);
 export default ChatRoom;

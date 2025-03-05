@@ -1,5 +1,11 @@
 import bcrypt from "bcrypt";
 import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+import { findUser, findUserById } from "./userServices.js";
+import "dotenv/config";
+import HttpError from "../helpers/HttpError.js";
+
+const { JWT_SECRET } = process.env;
 
 export const register = async (data) => {
   const { password } = data;
@@ -43,3 +49,39 @@ export async function recoverPassword(tempCode, data) {
 }
 // "password": "$2b$10$dCij5bXMhJPwK.6y2fqrdOoB0wRCqBGNCDxPgR//YBknQEqxIVRkS"
 // "password": "$2b$10$aPUhFwz.em4j9tEIXg7eeexUuXyV4d13cPP0InaV0Cdzr8F2mJFd2"
+
+export const signinHelper = async (email, password) => {
+  try {
+    console.log("📩 SigninHelper request received:", { email });
+
+    const user = await findUser({ email });
+    if (!user) {
+      return { error: "Email is wrong" };
+    }
+    const { password: hashPassword, _id } = user;
+    const compare = await bcrypt.compare(password, hashPassword);
+    console.log("compare: ", compare);
+    if (!compare) {
+      // throw HttpError(401, "Password is wrong");
+      return { error: "Invalid password" };
+    }
+
+    const payload = { id: _id };
+
+    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+
+    const refreshToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+    await setTokens(_id, accessToken, refreshToken);
+
+    const loggedInUser = await findUserById(_id, "-password");
+    console.log("loggedInUser: ", loggedInUser);
+
+    // const successResponse = { token, userId: user._id };
+    // console.log("✅ SigninHelper success response:", successResponse);
+
+    return loggedInUser;
+  } catch (error) {
+    console.error("🔥 SigninHelper error:", error);
+    return { error: "Server error" };
+  }
+};

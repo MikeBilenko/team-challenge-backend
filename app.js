@@ -6,8 +6,8 @@ import dotenv from "dotenv";
 // import expressOasGenerator from "express-oas-generator";
 // import swaggerUi from "swagger-ui-express";
 import fs from "fs";
-import swaggerUi from 'swagger-ui-express';
-import YAML from 'yaml';
+import swaggerUi from "swagger-ui-express";
+import YAML from "yaml";
 // import { createServer } from "node:http";
 // import swaggerDocument from "./docs/swagger.json" assert { type: "json" };
 // import contactsRouter from "./routes/contactsRouter.js";
@@ -20,6 +20,7 @@ import votingsRouter from "./routes/votingsRouter.js";
 import newsChannelRouter from "./routes/newsChannelRouter.js";
 import newsRouter from "./routes/NewsRouter.js";
 import contactInfoRouter from "./routes/contactInfoRouter.js";
+// import { startBot } from "./services/telegramBotService.js";
 
 // import googleAuthRouter from "./routes/googleAuthRouter.js";
 
@@ -47,12 +48,12 @@ app.use("/notifications", notificationsRouter);
 app.use("/votings", votingsRouter);
 app.use("/news_channels", newsChannelRouter);
 app.use("/news", newsRouter);
-app.use("/contactInfo", contactInfoRouter);
+app.use("/contact_info", contactInfoRouter);
 // app.use("/", googleAuthRouter);
 
-const file  = fs.readFileSync('./docs/swagger.yaml', 'utf8')
-const swaggerDocument = YAML.parse(file)
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const file = fs.readFileSync("./docs/swagger.yaml", "utf8");
+const swaggerDocument = YAML.parse(file);
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((_, res) => {
   res.status(404).json({ message: "Route not found" });
@@ -93,6 +94,8 @@ mongoose
   .connect(DB_HOST)
   .then(() => {
     console.log("Database connection successful");
+
+    // startBot();
 
     app.listen(PORT, () => {
       console.log(`Server is running. Use our API on port: ${PORT}`);

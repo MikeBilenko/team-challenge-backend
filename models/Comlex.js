@@ -22,6 +22,11 @@ const buildingSchema = new Schema({
   apartments: [apartmentSchema],
 });
 
+// const locationSchema = new Schema({
+//   ltd: String,
+//   lng:String
+// });
+
 const complexSchema = new Schema(
   {
     name: {
@@ -33,7 +38,11 @@ const complexSchema = new Schema(
         type: String,
       },
     ],
-
+    description: String,
+    location: {
+      ltd: String,
+      lng: String,
+    },
     properties: {
       parking: {
         type: Boolean,

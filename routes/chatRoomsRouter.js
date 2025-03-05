@@ -13,11 +13,13 @@ const {
   getActiveChat,
   createChatForTwo,
   getIsUserChatModerator,
+  getChatMembers,
 } = chatRoomsControllers;
 
 chatRoomsRouter.get("/", getUserChatRooms);
 chatRoomsRouter.get("/:chatId", isValidId, getActiveChat);
 chatRoomsRouter.post("/", isValidIdInBody, createChatForTwo);
 chatRoomsRouter.get("/is_moderaror/:chatId", isValidId, getIsUserChatModerator);
+chatRoomsRouter.get("/members/:chatId", isValidId, getChatMembers);
 
 export default chatRoomsRouter;

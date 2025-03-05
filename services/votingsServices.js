@@ -18,3 +18,7 @@ export const addVote = (votingId, vote) => {
 export const findVotingById = (votingId) => {
   return Voting.findById(votingId);
 };
+
+export function removeVotingById(votingId) {
+  return Voting.findByIdAndDelete(votingId);
+}
