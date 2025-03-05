@@ -8,7 +8,7 @@ const votingsRouter = express.Router();
 
 votingsRouter.use(authenticate);
 
-const { createVoting, getVotings, vote } = votingsControllers;
+const { createVoting, getVotings, vote, deleteVoting } = votingsControllers;
 
 votingsRouter.post(
   "/:residential_complex_id",
@@ -17,5 +17,6 @@ votingsRouter.post(
 );
 votingsRouter.get("/", getVotings);
 votingsRouter.patch("/:votingId", vote);
+votingsRouter.delete("/:votingId", deleteVoting);
 
 export default votingsRouter;

@@ -4,6 +4,7 @@ import {
   addVote,
   addVoting,
   findVotingById,
+  removeVotingById,
   votingsList,
 } from "../services/votingsServices.js";
 
@@ -75,31 +76,47 @@ const getVotings = async (req, res) => {
 
   res.json(finalResult);
 };
-
+// ***************************************************************************
 const vote = async (req, res) => {
   const { _id } = req.user;
   const { votingId } = req.params;
-  const { options } = req.body;
+  // const { options } = req.body;
+  const { optionsIds } = req.body;
 
   const date = new Date();
   console.log(date);
-  const { startDate, endDate } = await findVotingById(votingId);
+  const { startDate, endDate, options, votedUsers } = await findVotingById(
+    votingId
+  );
   if (date < startDate || date > endDate) {
     throw HttpError(
       403,
       "You can vote from the start date to the end date of the voting"
     );
   }
-  const trueOptions = options.filter((option) => option.quantity === true);
-  const userOptions = trueOptions.map((option) => {
-    option.isVote = option.quantity;
-    return option;
+  // const trueOptions = options.filter((option) => option.quantity === true);
+  // const userOptions = trueOptions.map((option) => {
+  //   option.isVote = option.quantity;
+  //   return option;
+  // });
+  const userOptionsIds = [];
+  optionsIds.map((elem) => {
+    options.map((item) => {
+      if (elem === item._id.toString()) {
+        // const optionId = item._id;
+        userOptionsIds.push({ _id: item._id });
+      }
+    });
+    return userOptionsIds;
   });
-  const userVote = { _id, votedUserOptions: userOptions };
+  console.log("userOptionsIds: ", userOptionsIds);
+  // const userVote = { _id, votedUserOptions: userOptions };
+  const userVote = { _id, userOptionsIds };
+  console.log("userVote: ", userVote);
 
-  const { options: oldOptions, votedUsers } = await findVotingById({
-    _id: votingId,
-  });
+  // const { options: oldOptions, votedUsers } = await findVotingById({
+  //   _id: votingId,
+  // });
   //the first variant
   const votedUser = votedUsers.find(
     (user) => user._id.toString() === _id.toString()
@@ -111,7 +128,7 @@ const vote = async (req, res) => {
       "You don't have access to this action, because you have already voted!"
     );
   }
-  //the second variant
+  // //the second variant
   const isVotedUser = votedUsers.findIndex(
     (user) => user._id.toString() === _id.toString()
   );
@@ -122,28 +139,40 @@ const vote = async (req, res) => {
       "You don't have access to this action, because you have already voted!"
     );
   }
-  // ----------------------
+  // // ----------------------
   votedUsers.push(userVote);
-  const voteQuantities = options.map(
-    (option) => (option.quantity = option.quantity ? 1 : 0)
-  );
+  console.log("votedUsers: ", votedUsers);
+  // const voteQuantities = options.map(
+  //   (option) => (option.quantity = option.quantity ? 1 : 0)
+  // );
 
-  console.log(voteQuantities);
-  const optionsAfterVoting = oldOptions.map((oldOption, idx) => {
-    const newQuantity = oldOption.quantity + voteQuantities[idx];
+  // console.log(voteQuantities);
+  // const optionsAfterVoting = oldOptions.map((oldOption, idx) => {
+  //   const newQuantity = oldOption.quantity + voteQuantities[idx];
 
-    //the first variant
-    oldOption.quantity = newQuantity;
-    return oldOption;
-    //the second variant
-    // const newOption = { ...oldOption, quantity: newQuantity };
-    // console.log(newOption._doc);
-    // return newOption._doc;
+  const optionsAfterVoting = options.map((elem) => {
+    optionsIds.map((item) => {
+      elem.quantity =
+        elem._id.toString() === item ? elem.quantity + 1 : elem.quantity;
+    });
+    return elem;
   });
+  console.log("optionsAfterVoting: ", optionsAfterVoting);
+  //   //the first variant
+  //   oldOption.quantity = newQuantity;
+  //   return oldOption;
+  //   //the second variant
+  //   // const newOption = { ...oldOption, quantity: newQuantity };
+  //   // console.log(newOption._doc);
+  //   // return newOption._doc;
+  // });
 
   const result = await addVote(
     { _id: votingId },
-    { options: optionsAfterVoting, votedUsers }
+    {
+      options: optionsAfterVoting,
+      votedUsers,
+    }
   );
 
   if (result.displayType === "Percentages") {
@@ -163,8 +192,29 @@ const vote = async (req, res) => {
   res.json(result);
 };
 
+const deleteVoting = async (req, res) => {
+  const { is_admin, buildings } = req.user;
+  const { votingId } = req.params;
+
+  const voting = await findVotingById(votingId);
+  if (!voting) {
+    throw HttpError(404, "Voting not found");
+  }
+
+  const moderator = buildings.find((elem) => elem.moderator === true);
+  console.log("moderator: ", moderator);
+
+  if (!is_admin && !moderator) {
+    throw HttpError(403, "You don't have access to this action!");
+  }
+  const result = await removeVotingById(votingId);
+
+  res.json(result);
+};
+
 export default {
   createVoting: ctrlWrapper(createVoting),
   getVotings: ctrlWrapper(getVotings),
   vote: ctrlWrapper(vote),
+  deleteVoting: ctrlWrapper(deleteVoting),
 };

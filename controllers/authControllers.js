@@ -56,7 +56,7 @@ const signup = async (req, res) => {
   const refreshToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
 
   const tokens = await setTokens(newUser._id, accessToken, refreshToken);
-  console.log(tokens);
+  // console.log(tokens);
 
   const loggedInUser = await findUserById({ _id: newUser._id }, "-password");
 
@@ -79,6 +79,7 @@ const signup = async (req, res) => {
 };
 
 const signin = async (req, res) => {
+  // console.log("req.body: ", req.body);
   const { email, password } = req.body;
   const user = await findUser({ email });
   if (!user) {
@@ -98,7 +99,7 @@ const signin = async (req, res) => {
   await setTokens(_id, accessToken, refreshToken);
 
   const loggedInUser = await findUserById(_id, "-password");
-
+  // console.log("loggedInUser: ", loggedInUser);
   res.status(200).json(loggedInUser);
 };
 
@@ -112,7 +113,7 @@ const getCurrent = async (req, res) => {
   const userRes = { ...req.user };
   delete userRes._doc.password;
   const user = userRes._doc;
-  console.log(user);
+  // console.log(user);
   res.json(user);
 };
 
@@ -200,17 +201,25 @@ const updateUserdata = async (req, res) => {
   }
   // Prevent changing the moderator status ************
   const { buildings, ...restBody } = req.body;
-  console.log(buildings);
-  console.log("restBody: ", restBody);
+  // console.log(buildings);
+  // console.log("restBody: ", restBody);
 
   const admin = is_admin ? { is_admin: true } : { is_admin: false };
-  console.log(admin);
+  // console.log(admin);
   const data = { ...restBody, ...admin };
   // ***************************************************
   const result = await updateUser({ _id }, data, {
     projection: { password: 0 },
   });
   res.status(200).json(result);
+};
+
+const handleResponse = (res, status, data) => {
+  if (res) {
+    return res.status(status).json(data);
+  } else {
+    return data;
+  }
 };
 
 export default {

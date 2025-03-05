@@ -7,10 +7,9 @@ import {
 } from "../schemas/complexSchema.js";
 import validateBody from "../decorators/validateBody.js";
 import upload from "../middlewares/upload.js";
+import isValidId from "../middlewares/isValidId.js";
 
 const complexesRouter = express.Router();
-
-// complexesRouter.use(authenticate);
 
 const {
   createComplex,
@@ -29,12 +28,13 @@ complexesRouter.post(
 );
 complexesRouter.put(
   "/:complexId",
+  isValidId,
   authenticate,
   validateBody(updateComplexSchema),
   updateComplex
 );
 complexesRouter.get("/", getComplexes);
-complexesRouter.get("/:complexId", getComplex);
-complexesRouter.delete("/:complexId", authenticate, deleteComplex);
+complexesRouter.get("/:complexId", isValidId, getComplex);
+complexesRouter.delete("/:complexId", isValidId, authenticate, deleteComplex);
 
 export default complexesRouter;

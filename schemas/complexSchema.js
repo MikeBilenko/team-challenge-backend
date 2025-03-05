@@ -2,6 +2,9 @@ import Joi from "joi";
 
 export const createComplexSchema = Joi.object({
   name: Joi.string().required().trim(),
+  description: Joi.string(),
+  ltd: Joi.string(),
+  lng: Joi.string(),
   images: Joi.array().items(Joi.string()),
   parking: Joi.boolean().default(false),
   security: Joi.boolean().default(false),

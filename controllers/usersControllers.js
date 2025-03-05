@@ -305,9 +305,17 @@ const setModeratorStatus = async (req, res) => {
   res.status(200).json(result);
 };
 
+const getUser = async (req, res) => {
+  const { userId: _id } = req.params;
+ chatRoomsExtas
+  const result = await findUserById(_id, "-password, -tokens");
+  res.json(result);
+};
+
 export default {
   addUserAddresses: ctrlWrapper(addUserAddresses),
   deleteUserAddress: ctrlWrapper(deleteUserAddress),
   approveUserAddress: ctrlWrapper(approveUserAddress),
   setModeratorStatus: ctrlWrapper(setModeratorStatus),
+  getUser: ctrlWrapper(getUser),
 };
