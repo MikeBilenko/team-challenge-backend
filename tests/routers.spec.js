@@ -13,6 +13,7 @@ import notificationsRouter from "../routes/notificationsRouter.js";
 import votingsRouter from "../routes/votingsRouter.js";
 import newsChannelRouter from "../routes/newsChannelRouter.js";
 import newsRouter from "../routes/NewsRouter.js";
+import contactInfoRouter from "../routes/contactInfoRouter.js";
 import { readFileSync } from "fs";
 import path from "path";
 import { homedir } from "os";
@@ -31,11 +32,15 @@ app.use("/notifications", notificationsRouter);
 app.use("/votings", votingsRouter);
 app.use("/news_channels", newsChannelRouter);
 app.use("/news", newsRouter);
+app.use("/contact_info", contactInfoRouter);
 
 let bearerToken = null;
 const complexID = '67a3a0c37ca64083c1ff9799';
 let newsID = null;
 const newsChannelID = '6795115a5824a1b87515b14d';
+let contactInfoID = null;
+let pollID = null;
+let optionsIds = null;
 
 function getToken(done) {
   request(app)
@@ -373,6 +378,104 @@ describe('Testing routes', () => {
     it("DELETE /:newsId", function(done) {
       request(app)
         .delete('/news/' + newsID)
+        .set('Authorization', 'Bearer ' + bearerToken)
+        .expect(200)
+        .end(function(err, res) {          
+          if (err) {
+            throw err;
+          }
+          done();
+        });
+    });
+  })
+
+  describe('Test /contact_info', function() {
+    before(getToken);
+
+    it("POST /:residential_complex_id/:building_id?", function(done) {
+      console.log(complexID);
+      
+      request(app)
+        .post('/contact_info/' + complexID)
+        .send({
+          title: "TEST CONTACT",
+          titleUA: "ТЕСТОВА КОНТАКТНА ІНФО",
+          description: "TEST CONTACT",
+          descriptionUA: "ТЕСТОВА КОНТАКТНА ІНФО",
+          location: "+1.0 -1.0"
+        })
+        .set('Authorization', 'Bearer ' + bearerToken)
+        .expect(201)
+        .end(function(err, res) {          
+          if (err) {
+            throw err;
+          }
+          contactInfoID = res.body._id;
+          done();
+        });
+    });
+
+    it("DELETE /:contactInfoID", function(done) {
+      console.log(complexID);
+      
+      request(app)
+        .delete('/contact_info/' + contactInfoID)
+        .set('Authorization', 'Bearer ' + bearerToken)
+        .expect(200)
+        .end(function(err, res) {          
+          if (err) {
+            throw err;
+          }
+          done();
+        });
+    });
+  })
+
+  describe('Test /votings', function() {
+    before(getToken);
+
+    it("POST /:complexID", function(done) {
+      request(app)
+        .post('/votings/' + complexID)
+        .send({
+          headline: "TEST VOTING",
+          votingType: "Multiple",
+          options: [{ name: "1" }, { name: "2" }, { name: "3" }],
+          startDate: new Date(Date.now()),
+          displayType: "Number"
+        })
+        .set('Authorization', 'Bearer ' + bearerToken)
+        .expect(201)
+        .end(function(err, res) {          
+          if (err) {
+            throw err;
+          }
+          pollID = res.body._id;
+          optionsIds = res.body.options.map((item) => item._id);
+          done();
+        });
+    });
+
+    it("PATCH /:votingID", function(done) {
+      request(app)
+        .patch('/votings/' + pollID)
+        .send({
+          optionsIds: [optionsIds[2]]
+        })
+        .set('Authorization', 'Bearer ' + bearerToken)
+        .expect(200)
+        .end(function(err, res) {          
+          if (err) {
+            throw err;
+          }
+          console.log(res);
+          done();
+        });
+    });
+
+    it("DELETE /:votingID", function(done) {      
+      request(app)
+        .delete('/votings/' + pollID)
         .set('Authorization', 'Bearer ' + bearerToken)
         .expect(200)
         .end(function(err, res) {          
