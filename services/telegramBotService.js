@@ -56,12 +56,11 @@ export const startBot = () => {
   });
 
   bot.onText(/\/logout/, async (msg) => {
-    console.log("msg.text: ", msg.text);
     const chatId = msg.chat.id;
-    console.log("userStates[chatId]: ", userStates[chatId]);
+
     if (userStates[chatId] !== "logout") return;
     userStates[chatId] = "start";
-    console.log("userStates[chatId]: ", userStates[chatId]);
+
     await updateUserCommands(chatId, userStates[chatId]);
     bot.sendMessage(chatId, "Confirm log out, please", {
       reply_markup: {
@@ -70,7 +69,6 @@ export const startBot = () => {
       },
     });
     users[chatId].step = "logout";
-    console.log("users[chatId].step: ", users[chatId].step);
   });
 
   bot.on("polling_error", console.log);

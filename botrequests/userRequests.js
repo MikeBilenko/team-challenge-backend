@@ -13,9 +13,8 @@ export const addUserAddresByBot = async ({
   chatId,
 }) => {
   try {
-    console.log("chatId:", chatId);
     const user = await findUser({ botChatId: chatId });
-    console.log("user:", user);
+
     if (!user) {
       return "You are not registered in the system. Please, register first";
     }
