@@ -97,13 +97,12 @@ export const startBot = () => {
           );
           if (result?.tokens) {
             userId = result._id;
-            console.log("result.tokens: ", result.tokens);
             const user = await updateUser(
               userId,
               { botChatId: chatId },
               { projection: { password: 0 } }
             );
-            console.log("user: ", user);
+
             await bot.sendMessage(chatId, "✅ User logged in successfully!");
           } else {
             bot.sendMessage(
@@ -132,7 +131,7 @@ export const startBot = () => {
               { $unset: { botChatId: "" } },
               { projection: { password: 0 } }
             );
-            console.log("user: ", user);
+
             bot.sendMessage(chatId, "You confirmed log out", {
               reply_markup: {
                 remove_keyboard: true,
@@ -171,9 +170,6 @@ export const startBot = () => {
           if (typeof result === "string") {
             bot.sendMessage(chatId, result);
           } else if (typeof result !== "string") {
-            console.log("result: ", result);
-            console.log("result.buildings: ", result.buildings);
-
             const userProperties = result.buildings.map((elem) => {
               elem.residential_complex_id;
               const addresses = elem.addresses.map((elem) => {
