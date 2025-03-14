@@ -314,7 +314,14 @@ const getUser = async (req, res) => {
 
 const getContactInfoForUser = async (req, res) => {
   const { buildings } = req.user; // get the user's buildings
-  res.json(buildings);
+  const userAddresses = buildings.map((elem) => {
+    const residential_complex_id = elem.residential_complex_id;
+    const addresses = elem.addresses.map((elem) => {
+      return elem.building_id;
+    });
+    return { residential_complex_id, addresses };
+  });
+  res.json(userAddresses);
 };
 
 export default {
