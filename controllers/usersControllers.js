@@ -307,9 +307,14 @@ const setModeratorStatus = async (req, res) => {
 
 const getUser = async (req, res) => {
   const { userId: _id } = req.params;
- chatRoomsExtas
+  chatRoomsExtas;
   const result = await findUserById(_id, "-password, -tokens");
   res.json(result);
+};
+
+const getContactInfoForUser = async (req, res) => {
+  const { buildings } = req.user; // get the user's buildings
+  res.json(buildings);
 };
 
 export default {
@@ -318,4 +323,5 @@ export default {
   approveUserAddress: ctrlWrapper(approveUserAddress),
   setModeratorStatus: ctrlWrapper(setModeratorStatus),
   getUser: ctrlWrapper(getUser),
+  getContactInfoForUser: ctrlWrapper(getContactInfoForUser),
 };
