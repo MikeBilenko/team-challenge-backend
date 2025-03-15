@@ -2,6 +2,7 @@ import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
 import sendEmail from "../helpers/sendEmail.js";
 import { findComplex } from "../services/complexServices.js";
+import { findContactInfo } from "../services/contactInfoservices.js";
 import {
   findUser,
   findUserById,
@@ -321,7 +322,32 @@ const getContactInfoForUser = async (req, res) => {
     });
     return { residential_complex_id, addresses };
   });
-  res.json(userAddresses);
+  console.log(
+    "userAddresses[0].residential_complex_id: ",
+    userAddresses[0].residential_complex_id
+  );
+  const result = await Promise.all(
+    userAddresses.map(async (elem) => {
+      const complex = await Promise.all(
+        elem.addresses.map(async (building_id) => {
+          const contactInfo = await findContactInfo({
+            residential_complex_id: elem.residential_complex_id,
+            building_id,
+          });
+          console.log("contactInfo: ", contactInfo);
+          return contactInfo;
+        })
+      );
+      return complex;
+    })
+  );
+
+  console.log("result: ", result);
+  const contactInfo = await findContactInfo({
+    residential_complex_id: userAddresses[0].residential_complex_id,
+    building_id: { $exists: false },
+  });
+  res.json(result);
 };
 
 export default {
