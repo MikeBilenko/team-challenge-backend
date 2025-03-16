@@ -98,9 +98,7 @@ const addUserAddresses = async (req, res) => {
   );
 
   const { email: adminEmail } = await findUser({ is_admin: true });
-  // console.log(`adminEmail: ${adminEmail}`);
-  // xegoxa5375sw@cantozil.com
-  // peqogyjy@cyclelove.cc
+
   const userEmail = {
     to: email,
     subject: "Your addresses",
@@ -157,15 +155,15 @@ const deleteUserAddress = async (req, res) => {
       `Sorry, but this address doesn't exist in your addresses list, so you have to enter the correct address`
     );
   }
-  // console.log(existedUserAddress);
+
   const searchComplexIndex = buildings.findIndex(
     (elem) => elem.residential_complex_id.toString() === complexId.toString()
   );
-  console.log(searchComplexIndex);
+
   const searchBuildingIndex = buildings[searchComplexIndex].addresses.findIndex(
     (elem) => elem.building === building
   );
-  console.log(searchBuildingIndex);
+
   const newApartments = buildings[searchComplexIndex].addresses[
     searchBuildingIndex
   ].apartments.filter(
@@ -322,10 +320,7 @@ const getContactInfoForUser = async (req, res) => {
     });
     return { residential_complex_id, addresses };
   });
-  console.log(
-    "userAddresses[0].residential_complex_id: ",
-    userAddresses[0].residential_complex_id
-  );
+
   const result = await Promise.all(
     userAddresses.map(async (elem) => {
       const complex = await Promise.all(
