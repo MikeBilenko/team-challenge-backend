@@ -41,7 +41,7 @@ usersRouter.patch(
   isValidId,
   setModeratorStatus
 );
-usersRouter.get("/:userId", isValidId, getUser);
-usersRouter.get("/", getContactInfoForUser);
+usersRouter.get("/user/:userId", isValidId, getUser);
+usersRouter.get("/contact_info", getContactInfoForUser);
 
 export default usersRouter;
