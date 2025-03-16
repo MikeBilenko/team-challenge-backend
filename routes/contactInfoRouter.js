@@ -34,5 +34,6 @@ contactInfoRouter.get(
   isValidId,
   contactInfoControllers.getContactInfo
 );
+contactInfoRouter.get("/", contactInfoControllers.getContactInfoForUser);
 
 export default contactInfoRouter;

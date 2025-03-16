@@ -105,9 +105,44 @@ const getContactInfo = async (req, res) => {
   res.json(result);
 };
 
+const getContactInfoForUser = async (req, res) => {
+  const { buildings } = req.user; // get the user's buildings
+  const userAddresses = buildings.map((elem) => {
+    const residential_complex_id = elem.residential_complex_id;
+    const addresses = elem.addresses.map((elem) => {
+      return elem.building_id;
+    });
+    return { residential_complex_id, addresses };
+  });
+
+  const result = await Promise.all(
+    userAddresses.map(async (elem) => {
+      const complex = await Promise.all(
+        elem.addresses.map(async (building_id) => {
+          const contactInfo = await findContactInfo({
+            residential_complex_id: elem.residential_complex_id,
+            building_id,
+          });
+          console.log("contactInfo: ", contactInfo);
+          return contactInfo;
+        })
+      );
+      return complex;
+    })
+  );
+
+  console.log("result: ", result);
+  const contactInfo = await findContactInfo({
+    residential_complex_id: userAddresses[0].residential_complex_id,
+    building_id: { $exists: false },
+  });
+  res.json(result);
+};
+
 export default {
   createContactInfo: ctrlWrapper(createContactInfo),
   deleteContactInfo: ctrlWrapper(deleteContactInfo),
   updateContactInfo: ctrlWrapper(updateContactInfo),
   getContactInfo: ctrlWrapper(getContactInfo),
+  getContactInfoForUser: ctrlWrapper(getContactInfoForUser),
 };
