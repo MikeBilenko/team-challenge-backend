@@ -62,9 +62,6 @@ const deleteContactInfo = async (req, res) => {
 };
 
 const updateContactInfo = async (req, res) => {
-  console.log("Date: ", new Date(1727616328141));
-  // console.log("Date now: ", new Date());
-
   const params = req.params;
   const { contactInfoId: _id } = params;
   const keys = Object.keys(req.body);
@@ -123,7 +120,6 @@ const getContactInfoForUser = async (req, res) => {
             residential_complex_id: elem.residential_complex_id,
             building_id,
           });
-          console.log("contactInfo: ", contactInfo);
           return contactInfo;
         })
       );
@@ -131,11 +127,6 @@ const getContactInfoForUser = async (req, res) => {
     })
   );
 
-  console.log("result: ", result);
-  const contactInfo = await findContactInfo({
-    residential_complex_id: userAddresses[0].residential_complex_id,
-    building_id: { $exists: false },
-  });
   res.json(result);
 };
 
