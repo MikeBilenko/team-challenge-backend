@@ -73,7 +73,6 @@ const createChatRooom = async (req, res) => {
   }
   console.log(result);
   res.status(201).json({ message: "User address data was approved", result });
-  //   const result=await
 };
 
 const createChatForTwo = async (req, res) => {
@@ -112,7 +111,6 @@ const getIsUserChatModerator = async (req, res) => {
   }
 
   const { building_id } = await getChatRoom({ _id });
-  // console.log("building_id: ", building_id);
 
   const { _id: residential_complex_id } = await findComplex({
     buildings: {
@@ -121,13 +119,13 @@ const getIsUserChatModerator = async (req, res) => {
       },
     },
   });
-  // console.log("residential_complex_id: ", residential_complex_id);
+
   const { moderator } = buildings.find(
     (elem) =>
       elem.residential_complex_id.toString() ===
       residential_complex_id.toString()
   );
-  // console.log("moderator: ", moderator);
+
   if (!moderator) {
     throw HttpError(404, "You are not  a moderator");
   }
@@ -142,14 +140,10 @@ const getChatMembers = async (req, res) => {
   const { chatId: _id } = req.params;
   const { _id: userId } = req.user;
 
-  // const expendFild = "users";
-  // const getFilds = "-password";
-
-  const chatRoom = await getChatRoomById(_id, "users", "-password"); // Указываем поля (минус перед _id — убрать его)
+  const chatRoom = await getChatRoomById(_id, "users", "-password"); // Specify fields ("-" before _id — remove it from the result)
   if (!chatRoom) {
     throw HttpError(404, "Chat room not found");
   }
-  console.log("chatRoom: ", chatRoom);
 
   const userInChat = chatRoom.users.find(
     (elem) => elem._id.toString() === userId.toString()
