@@ -1,553 +1,501 @@
-openapi: 3.0.1
-info:
-  title: Chat
-  description: API for the Team Challenge Chat project, main backend microservice
-  version: '1.0'
-servers:
-  - url: 'https://team-challenge-backend-c55i.onrender.com/'
-  - url: http://localhost:4000
-tags:
-  - name: Auth
-    description: registration, login, get current user etc
-  - name: Users
-    description: register that a user is living at an address
-  - name: Complexes
-    description: CRUD for residential complexes
 
-
-paths:
-  /auth/login:
-    post:
-      tags:
-        - Auth
-      summary: log into your account
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/login"
-      responses:
-        '200':
-          description: Success
-          content: 
-            application/json:
-              schema:
-                $ref: "#/components/schemas/userObject"
-        '400':
-          description: Incorrect format of email or password
-        '401':
-          description: Incorrect email or password
-  /auth/logout:
-    post:
-      security:
-        - bearerAuth: []
-      tags:
-        - Auth
-      summary: log into your account
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              example: {}
-      responses:
-        '204': 
-          description: Success
-        '401':
-          description: Not authorized
-  /auth/current:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - Auth
-      summary: get information about the user
-      responses:
-        '200': 
-          description: Success
-          content: 
-            application/json:
-              schema:
-                $ref: "#/components/schemas/userObject"
-        '401':
-          description: Not authorized
-  /auth/refresh:
-    get:
-      security:
-        - bearerAuth: []
-      tags:
-        - Auth
-      summary: use refresh (or access) token to get a new token pair
-      responses:
-        '200': 
-          description: Success
-          content: 
-            application/json:
-              schema:
-                example: |-
-                  {
-                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwODY5MywiZXhwIjoxNzM5MTEyMjkzfQ._Kb8KYZkLmGAAQcpwzcR_NCmnOLFhsBKEVw2Y0CxvCc",
-                    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwODY5MywiZXhwIjoxNzM5NzEzNDkzfQ.AxQT_dRuG3zUx5EetLAHdKRrsRzoAWHy0n0P6iOWQ1k"
-                  }
-        '401':
-          description: Not authorized
-  /auth/forgot-password:
-    put:
-      security:
-        - bearerAuth: []
-      tags:
-        - Auth
-      summary: email a message with a secret link to the user
-      responses:
-  /auth/update-password/{secret-code}:
-    put:
-      security:
-        - bearerAuth: []
-      tags:
-        - Auth
-      summary: update password using a secret link
-      parameters:
-        - in: path
-          required: true
-          name: secret-code
-          schema: 
-            type: string
-      responses:
-  /auth/update:
-    put:
-      security:
-        - bearerAuth: []
-      tags:
-        - Auth
-      summary: update user data
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/update-user'
-      responses:
-  
-  /users/addresses:
-    put:
-      security:
-        - bearerAuth: []
-      tags:
-        - Users
-      summary: apply user for registering at an address. Sends out an email to admin for approval
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/address'
-      responses:
-        '200': 
-          description: Success
-          content: 
-            application/json:
-              schema:
-                $ref: '#/components/schemas/userObject'
-        '400':
-          description: Address does not exist
-        '401':
-          description: Not authorized
-        '409':
-          description: Already registered for that address
-    delete:
-      security:
-        - bearerAuth: []
-      tags:
-        - Users
-      summary: delete registration of a user for an address, approved or not
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/address'
-      responses:
-        '200': 
-          description: Success
-          content: 
-            application/json:
-              schema:
-                $ref: '#/components/schemas/userObject'
-        '400':
-          description: Address did not exist
-        '401':
-          description: Not authorized
-  /users/addresses/{userID}:
-    patch:
-      security:
-        - bearerAuth: []
-      tags:
-        - Users
-      summary: approve user address. Requires admin access
-      parameters:
-        - in: path
-          required: true
-          name: userID
-          schema: 
-            type: string
-            example: 6770447a0a0bcb8470d928ee
-        - in: query
-          name: residential_complex
-          required: true
-          schema:
-            type: string
-            example: Cool complex 666
-        - in: query
-          name: building
-          required: true
-          schema:
-            type: string
-            example: 7a
-        - in: query
-          name: entrance
-          required: true
-          schema:
-            type: number
-            example: 1
-        - in: query
-          name: apartment
-          required: true
-          schema:
-            type: number
-            example: 1
-      responses:
-        '201': 
-          description: Success
-          content: 
-            application/json:
-              schema:
-                example: |-
-                  {
-                    "message": "User address data was approved",
-                    "result": {
-                      "name": "Cool complex 666 7a",
-                      "picture": "",
-                      "building_id": "67a3ae0a3b07cac29676896b",
-                      "users": [
-                        "6770447a0a0bcb8470d928ee"
-                      ],
-                      "_id": "67a8c5f1f333ff1cc8b58c65"
-                    }
-                  }
-        '400':
-          description: Bad request (no such apartment, no changes made)
-        '401':
-          description: Not authorized
-        '403':
-          description: You are not an admin
-  /users/addresses/{userID}/{complexID}:
-    patch:
-      security:
-        - bearerAuth: []
-      tags:
-        - Users
-      summary: give user moderator status in a complex. Requires admin access. Empty query to set to "false".
-      parameters:
-        - in: path
-          required: true
-          name: userID
-          schema: 
-            type: string
-            example: 6770447a0a0bcb8470d928ee
-        - in: path
-          required: true
-          name: complexID
-          schema: 
-            type: string
-            example: 6760675f58e4cf9dc2be0bdb
-        - in: query
-          name: moderator_status
-          schema: 
-            type: string
-            example: true
-      responses:
-        '200': 
-          description: Success
-          content: 
-            application/json:
-              schema:
-        '400':
-          description: Bad request
-        '401':
-          description: Not authorized
-        '403':
-          description: You are not an admin
-  /complexes:
-    get:
-      tags:
-        - Complexes
-      summary: get info about all complexes
-      responses:
-        '200': 
-          description: Success
-          content: 
-            application/json:
-              schema:
-                $ref: '#/components/schemas/complexes'
-  /complexes/{complexID}:
-    get:
-      tags:
-        - Complexes
-      summary: get info about all complexes
-      parameters:
-        - in: path
-          required: true
-          name: complexID
-          schema: 
-            type: string
-            example: 6760675f58e4cf9dc2be0bdb
-      responses:
-        '200': 
-          description: Success
-          content: 
-            application/json:
-              schema:
-                $ref: '#/components/schemas/complex'
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  schemas:
-    login:
-      type: object
-      properties:
-        email:
-          type: string
-        password:
-          type: string
-      example:
-        email: Password1@email.com
-        password: Password1
-    userObject: 
-      type: object
-      example: |-
-        {
-          "tokens": {
-            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5MTExMDQzfQ.bR55VPwuJyiGNchsbypb4luGRzxbcK73FoU-4jXIxjc",
-            "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5NzEyMjQzfQ.vdCj3X64mNl6H0GPYcB5XsyS8eVfTOUNqdoQcMV-99c"
-          },
-          "_id": "6770447a0a0bcb8470d928ee",
-          "name": "password1@email.com",
-          "email": "Password1@email.com",
-          "phone": "+1234567890",
-          "avatar": "https://avatar.iran.liara.run/username?username=Password1@email.com",
-          "is_admin": true,
-          "buildings": [
-            {
-              "residential_complex_id": "6760675f58e4cf9dc2be0bdb",
-              "moderator": true,
-              "addresses": [
-                {
-                  "building": "5a",
-                  "apartments": [
-                    {
-                      "apartment": 5,
-                      "entrance": 3,
-                      "approved": true,
-                      "_id": "676efb11d3c3f7fa3ca3471c"
-                    }
-                  ],
-                  "_id": "676efb11d3c3f7fa3ca3471b"
-                }
-              ],
-              "_id": "676efb11d3c3f7fa3ca3471a"
-            }
-          ],
-          "tempCode": "b4bl7m3xz0ym65f",
-          "tempCodeTime": "1739106011499"
-        }
-    update-user:
-      type: object
-      properties:
-        email:
-          type: string
-        name:
-          type: string
-        password:
-          type: string
-        phone: 
-          type: string
-      example:
-        email: Password1@email.com
-        name: Password1@email.com
-        password: Password1
-        phone: "+111222333444"
-    address:
-      type: object
-      properties:
-        residential_complex:
-          type: string
-        building:
-          type: string
-        entrance:
-          type: number
-        apartment: 
-          type: number
-      example:
-        residential_complex: Cool complex 666
-        building: 7a
-        entrance: 1
-        apartment: 1
-    complexes:
-      type: object
-      example: |-
-        [
-          {
-            "properties": {
-              "parking": false,
-              "security": false,
-              "access_control": false,
-              "concierge": false,
-              "playground": false,
-              "closed_area": false,
-              "video_surveillance": false,
-              "floors": 1,
-              "entrances": 1
-            },
-            "_id": "67a3a0c37ca64083c1ff9799",
-            "name": "Test Complex",
-            "images": [
-              "http://res.cloudinary.com/dgcka24lm/image/upload/v1738776771/teamchallenge/nnfjk1lx7jqpyzsflygr.jpg"
-            ],
-            "buildings": [
-              {
-                "address": "1",
-                "apartments": [
-                  {
-                    "number": 1,
-                    "entrance": 1,
-                    "services_debt": 0,
-                    "_id": "67a89fd9bc86a6c85807a67f"
-                  },
-                  {
-                    "number": 2,
-                    "entrance": 1,
-                    "services_debt": 0,
-                    "_id": "67a89fd9bc86a6c85807a680"
-                  }
-                ],
-                "_id": "67a89fd9bc86a6c85807a67e"
-              },
-              {
-                "address": "2",
-                "apartments": [
-                  {
-                    "number": 1,
-                    "entrance": 1,
-                    "services_debt": 0,
-                    "_id": "67a89fd9bc86a6c85807a682"
-                  },
-                  {
-                    "number": 2,
-                    "entrance": 1,
-                    "services_debt": 0,
-                    "_id": "67a89fd9bc86a6c85807a683"
-                  }
-                ],
-                "_id": "67a89fd9bc86a6c85807a681"
-              }
-            ]
-          },
-          {
-            "properties": {
-              "parking": false,
-              "security": false,
-              "access_control": false,
-              "concierge": false,
-              "playground": false,
-              "closed_area": false,
-              "video_surveillance": false,
-              "floors": 1,
-              "entrances": 1
-            },
-            "_id": "67a3b22c57531ded6f3b23c0",
-            "name": "Test Complex",
-            "images": [
-              "http://res.cloudinary.com/dgcka24lm/image/upload/v1738781227/teamchallenge/hoa8lrcu2f7ojr4kdxds.jpg"
-            ],
-            "buildings": [
-              {
-                "address": "1",
-                "_id": "67a3b22c57531ded6f3b23c1",
-                "apartments": []
-              },
-              {
-                "address": "2",
-                "_id": "67a3b22c57531ded6f3b23c2",
-                "apartments": []
-              },
-              {
-                "address": "3a",
-                "_id": "67a3b22c57531ded6f3b23c3",
-                "apartments": []
-              }
-            ]
-          }
-        ]
-    complex:
-      type: object
-      example: |-
-        {
-          "properties": {
-            "parking": false,
-            "security": false,
-            "access_control": false,
-            "concierge": false,
-            "playground": false,
-            "closed_area": false,
-            "video_surveillance": false,
-            "floors": 1,
-            "entrances": 1
-          },
-          "_id": "67a3a0c37ca64083c1ff9799",
-          "name": "Test Complex",
-          "images": [
-            "http://res.cloudinary.com/dgcka24lm/image/upload/v1738776771/teamchallenge/nnfjk1lx7jqpyzsflygr.jpg"
-          ],
-          "buildings": [
-            {
-              "address": "1",
-              "apartments": [
-                {
-                  "number": 1,
-                  "entrance": 1,
-                  "services_debt": 0,
-                  "_id": "67a89fd9bc86a6c85807a67f"
-                },
-                {
-                  "number": 2,
-                  "entrance": 1,
-                  "services_debt": 0,
-                  "_id": "67a89fd9bc86a6c85807a680"
-                }
-              ],
-              "_id": "67a89fd9bc86a6c85807a67e"
-            },
-            {
-              "address": "2",
-              "apartments": [
-                {
-                  "number": 1,
-                  "entrance": 1,
-                  "services_debt": 0,
-                  "_id": "67a89fd9bc86a6c85807a682"
-                },
-                {
-                  "number": 2,
-                  "entrance": 1,
-                  "services_debt": 0,
-                  "_id": "67a89fd9bc86a6c85807a683"
-                }
-              ],
-              "_id": "67a89fd9bc86a6c85807a681"
-            }
-          ]
-        }
+"openapi": "3.0.1"
+"info":
+  "title": "Chat"
+  "description": "API for the Team Challenge Chat project, main backend microservice"
+  "version": "1.0"
+"servers":
+  -
+    "url": "https://team-challenge-backend-c55i.onrender.com/"
+  -
+    "url": "http://localhost:4000"
+"tags":
+  -
+    "name": "Auth"
+    "description": "registration, login, get current user etc"
+  -
+    "name": "Users"
+    "description": "register that a user is living at an address"
+  -
+    "name": "Complexes"
+    "description": "CRUD for residential complexes"
+"paths":
+  "/auth/register":
+    "post":
+      "tags":
+        - "Auth"
+      "summary": "register account"
+      "requestBody":
+        "required": true
+        "content":
+          "multipart/form-data":
+            "schema":
+              "type": "object"
+              "required": "-name -email -password -phone"
+              "properties":
+                "name":
+                  "type": "string"
+                "email":
+                  "type": "string"
+                "password":
+                  "type": "string"
+                "phone":
+                  "type": "string"
+                "gender":
+                  "type": "string"
+                  "enum":
+                    - "male"
+                    - "female"
+                "avatar":
+                  "type": "string"
+                  "format": "binary"
+              "example":
+                "email": "Password1@email.com"
+                "name": "Password1@email.com"
+                "password": "Password1"
+                "phone": "+111222333444"
+      "responses":
+        "201":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "example": "{\n\"tokens\": {\n\"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5MTExMDQzfQ.bR55VPwuJyiGNchsbypb4luGRzxbcK73FoU-4jXIxjc\",\n\"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5NzEyMjQzfQ.vdCj3X64mNl6H0GPYcB5XsyS8eVfTOUNqdoQcMV-99c\"\n},\n\"_id\": \"6770447a0a0bcb8470d928ee\",\n\"name\": \"password1@email.com\",\n\"email\": \"Password1@email.com\",\n\"phone\": \"+1234567890\",\n\"avatar\": \"https://avatar.iran.liara.run/username?username=Password1@email.com\",\n\"is_admin\": true,\n\"buildings\": [\n{\n\"residential_complex_id\": \"6760675f58e4cf9dc2be0bdb\",\n\"moderator\": true,\n\"addresses\": [\n{\n\"building\": \"5a\",\n\"apartments\": [\n{\n\"apartment\": 5,\n\"entrance\": 3,\n\"approved\": true,\n\"_id\": \"676efb11d3c3f7fa3ca3471c\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471b\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471a\"\n}\n],\n\"tempCode\": \"b4bl7m3xz0ym65f\",\n\"tempCodeTime\": \"1739106011499\"\n}"
+        "400":
+          "description": "Incorrect data format "
+  "/auth/login":
+    "post":
+      "tags":
+        - "Auth"
+      "summary": "log into your account"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "email":
+                  "type": "string"
+                "password":
+                  "type": "string"
+              "example":
+                "email": "Password1@email.com"
+                "password": "Password1"
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "example": "{\n\"tokens\": {\n\"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5MTExMDQzfQ.bR55VPwuJyiGNchsbypb4luGRzxbcK73FoU-4jXIxjc\",\n\"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5NzEyMjQzfQ.vdCj3X64mNl6H0GPYcB5XsyS8eVfTOUNqdoQcMV-99c\"\n},\n\"_id\": \"6770447a0a0bcb8470d928ee\",\n\"name\": \"password1@email.com\",\n\"email\": \"Password1@email.com\",\n\"phone\": \"+1234567890\",\n\"avatar\": \"https://avatar.iran.liara.run/username?username=Password1@email.com\",\n\"is_admin\": true,\n\"buildings\": [\n{\n\"residential_complex_id\": \"6760675f58e4cf9dc2be0bdb\",\n\"moderator\": true,\n\"addresses\": [\n{\n\"building\": \"5a\",\n\"apartments\": [\n{\n\"apartment\": 5,\n\"entrance\": 3,\n\"approved\": true,\n\"_id\": \"676efb11d3c3f7fa3ca3471c\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471b\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471a\"\n}\n],\n\"tempCode\": \"b4bl7m3xz0ym65f\",\n\"tempCodeTime\": \"1739106011499\"\n}"
+        "400":
+          "description": "Incorrect format of email or password"
+        "401":
+          "description": "Incorrect email or password"
+  "/auth/logout":
+    "post":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Auth"
+      "summary": "log into your account"
+      "requestBody":
+        "required": false
+        "content":
+          "application/json":
+            "schema":
+              "example": {}
+      "responses":
+        "204":
+          "description": "Success"
+        "401":
+          "description": "Not authorized"
+  "/auth/current":
+    "get":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Auth"
+      "summary": "get information about the user"
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "example": "{\n\"tokens\": {\n\"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5MTExMDQzfQ.bR55VPwuJyiGNchsbypb4luGRzxbcK73FoU-4jXIxjc\",\n\"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5NzEyMjQzfQ.vdCj3X64mNl6H0GPYcB5XsyS8eVfTOUNqdoQcMV-99c\"\n},\n\"_id\": \"6770447a0a0bcb8470d928ee\",\n\"name\": \"password1@email.com\",\n\"email\": \"Password1@email.com\",\n\"phone\": \"+1234567890\",\n\"avatar\": \"https://avatar.iran.liara.run/username?username=Password1@email.com\",\n\"is_admin\": true,\n\"buildings\": [\n{\n\"residential_complex_id\": \"6760675f58e4cf9dc2be0bdb\",\n\"moderator\": true,\n\"addresses\": [\n{\n\"building\": \"5a\",\n\"apartments\": [\n{\n\"apartment\": 5,\n\"entrance\": 3,\n\"approved\": true,\n\"_id\": \"676efb11d3c3f7fa3ca3471c\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471b\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471a\"\n}\n],\n\"tempCode\": \"b4bl7m3xz0ym65f\",\n\"tempCodeTime\": \"1739106011499\"\n}"
+        "401":
+          "description": "Not authorized"
+  "/auth/refresh":
+    "get":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Auth"
+      "summary": "use refresh (or access) token to get a new token pair"
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "example": "{\n\"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwODY5MywiZXhwIjoxNzM5MTEyMjkzfQ._Kb8KYZkLmGAAQcpwzcR_NCmnOLFhsBKEVw2Y0CxvCc\",\n\"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwODY5MywiZXhwIjoxNzM5NzEzNDkzfQ.AxQT_dRuG3zUx5EetLAHdKRrsRzoAWHy0n0P6iOWQ1k\"\n}"
+        "401":
+          "description": "Not authorized"
+  "/auth/forgot-password":
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Auth"
+      "summary": "email a message with a secret link to the user"
+      "responses": ""
+  "/auth/update-password/{secret-code}":
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Auth"
+      "summary": "update password using a secret link"
+      "parameters":
+        -
+          "in": "path"
+          "required": true
+          "name": "secret-code"
+          "schema":
+            "type": "string"
+      "responses": ""
+  "/auth/update":
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Auth"
+      "summary": "update user data"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "email":
+                  "type": "string"
+                "name":
+                  "type": "string"
+                "password":
+                  "type": "string"
+                "phone":
+                  "type": "string"
+              "example":
+                "email": "Password1@email.com"
+                "name": "Password1@email.com"
+                "password": "Password1"
+                "phone": "+111222333444"
+      "responses": ""
+  "/users/addresses":
+    "put":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Users"
+      "summary": "apply user for registering at an address. Sends out an email to admin for approval"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "residential_complex":
+                  "type": "string"
+                "building":
+                  "type": "string"
+                "entrance":
+                  "type": "number"
+                "apartment":
+                  "type": "number"
+              "example":
+                "residential_complex": "Cool complex 666"
+                "building": "7a"
+                "entrance": 1
+                "apartment": 1
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "example": "{\n\"tokens\": {\n\"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5MTExMDQzfQ.bR55VPwuJyiGNchsbypb4luGRzxbcK73FoU-4jXIxjc\",\n\"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5NzEyMjQzfQ.vdCj3X64mNl6H0GPYcB5XsyS8eVfTOUNqdoQcMV-99c\"\n},\n\"_id\": \"6770447a0a0bcb8470d928ee\",\n\"name\": \"password1@email.com\",\n\"email\": \"Password1@email.com\",\n\"phone\": \"+1234567890\",\n\"avatar\": \"https://avatar.iran.liara.run/username?username=Password1@email.com\",\n\"is_admin\": true,\n\"buildings\": [\n{\n\"residential_complex_id\": \"6760675f58e4cf9dc2be0bdb\",\n\"moderator\": true,\n\"addresses\": [\n{\n\"building\": \"5a\",\n\"apartments\": [\n{\n\"apartment\": 5,\n\"entrance\": 3,\n\"approved\": true,\n\"_id\": \"676efb11d3c3f7fa3ca3471c\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471b\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471a\"\n}\n],\n\"tempCode\": \"b4bl7m3xz0ym65f\",\n\"tempCodeTime\": \"1739106011499\"\n}"
+        "400":
+          "description": "Address does not exist"
+        "401":
+          "description": "Not authorized"
+        "409":
+          "description": "Already registered for that address"
+    "delete":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Users"
+      "summary": "delete registration of a user for an address, approved or not"
+      "requestBody":
+        "required": true
+        "content":
+          "application/json":
+            "schema":
+              "type": "object"
+              "properties":
+                "residential_complex":
+                  "type": "string"
+                "building":
+                  "type": "string"
+                "entrance":
+                  "type": "number"
+                "apartment":
+                  "type": "number"
+              "example":
+                "residential_complex": "Cool complex 666"
+                "building": "7a"
+                "entrance": 1
+                "apartment": 1
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "example": "{\n\"tokens\": {\n\"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5MTExMDQzfQ.bR55VPwuJyiGNchsbypb4luGRzxbcK73FoU-4jXIxjc\",\n\"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5NzEyMjQzfQ.vdCj3X64mNl6H0GPYcB5XsyS8eVfTOUNqdoQcMV-99c\"\n},\n\"_id\": \"6770447a0a0bcb8470d928ee\",\n\"name\": \"password1@email.com\",\n\"email\": \"Password1@email.com\",\n\"phone\": \"+1234567890\",\n\"avatar\": \"https://avatar.iran.liara.run/username?username=Password1@email.com\",\n\"is_admin\": true,\n\"buildings\": [\n{\n\"residential_complex_id\": \"6760675f58e4cf9dc2be0bdb\",\n\"moderator\": true,\n\"addresses\": [\n{\n\"building\": \"5a\",\n\"apartments\": [\n{\n\"apartment\": 5,\n\"entrance\": 3,\n\"approved\": true,\n\"_id\": \"676efb11d3c3f7fa3ca3471c\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471b\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471a\"\n}\n],\n\"tempCode\": \"b4bl7m3xz0ym65f\",\n\"tempCodeTime\": \"1739106011499\"\n}"
+        "400":
+          "description": "Address did not exist"
+        "401":
+          "description": "Not authorized"
+  "/users/addresses/{userID}":
+    "patch":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Users"
+      "summary": "approve user address. Requires admin access"
+      "parameters":
+        -
+          "in": "path"
+          "required": true
+          "name": "userID"
+          "schema":
+            "type": "string"
+            "example": "6770447a0a0bcb8470d928ee"
+        -
+          "in": "query"
+          "name": "residential_complex"
+          "required": true
+          "schema":
+            "type": "string"
+            "example": "Cool complex 666"
+        -
+          "in": "query"
+          "name": "building"
+          "required": true
+          "schema":
+            "type": "string"
+            "example": "7a"
+        -
+          "in": "query"
+          "name": "entrance"
+          "required": true
+          "schema":
+            "type": "number"
+            "example": 1
+        -
+          "in": "query"
+          "name": "apartment"
+          "required": true
+          "schema":
+            "type": "number"
+            "example": 1
+      "responses":
+        "201":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "example": "{\n\"message\": \"User address data was approved\",\n\"result\": {\n\"name\": \"Cool complex 666 7a\",\n\"picture\": \"\",\n\"building_id\": \"67a3ae0a3b07cac29676896b\",\n\"users\": [\n\"6770447a0a0bcb8470d928ee\"\n],\n\"_id\": \"67a8c5f1f333ff1cc8b58c65\"\n}\n}"
+        "400":
+          "description": "Bad request (no such apartment, no changes made)"
+        "401":
+          "description": "Not authorized"
+        "403":
+          "description": "You are not an admin"
+  "/users/addresses/{userID}/{complexID}":
+    "patch":
+      "security":
+        -
+          "bearerAuth": []
+      "tags":
+        - "Users"
+      "summary": "give user moderator status in a complex. Requires admin access. Empty query to set to \"false\"."
+      "parameters":
+        -
+          "in": "path"
+          "required": true
+          "name": "userID"
+          "schema":
+            "type": "string"
+            "example": "6770447a0a0bcb8470d928ee"
+        -
+          "in": "path"
+          "required": true
+          "name": "complexID"
+          "schema":
+            "type": "string"
+            "example": "6760675f58e4cf9dc2be0bdb"
+        -
+          "in": "query"
+          "name": "moderator_status"
+          "schema":
+            "type": "string"
+            "example": true
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema": ""
+        "400":
+          "description": "Bad request"
+        "401":
+          "description": "Not authorized"
+        "403":
+          "description": "You are not an admin"
+  "/complexes":
+    "get":
+      "tags":
+        - "Complexes"
+      "summary": "get info about all complexes"
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "example": "[\n{\n\"properties\": {\n\"parking\": false,\n\"security\": false,\n\"access_control\": false,\n\"concierge\": false,\n\"playground\": false,\n\"closed_area\": false,\n\"video_surveillance\": false,\n\"floors\": 1,\n\"entrances\": 1\n},\n\"_id\": \"67a3a0c37ca64083c1ff9799\",\n\"name\": \"Test Complex\",\n\"images\": [\n\"http://res.cloudinary.com/dgcka24lm/image/upload/v1738776771/teamchallenge/nnfjk1lx7jqpyzsflygr.jpg\"\n],\n\"buildings\": [\n{\n\"address\": \"1\",\n\"apartments\": [\n{\n\"number\": 1,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a67f\"\n},\n{\n\"number\": 2,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a680\"\n}\n],\n\"_id\": \"67a89fd9bc86a6c85807a67e\"\n},\n{\n\"address\": \"2\",\n\"apartments\": [\n{\n\"number\": 1,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a682\"\n},\n{\n\"number\": 2,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a683\"\n}\n],\n\"_id\": \"67a89fd9bc86a6c85807a681\"\n}\n]\n},\n{\n\"properties\": {\n\"parking\": false,\n\"security\": false,\n\"access_control\": false,\n\"concierge\": false,\n\"playground\": false,\n\"closed_area\": false,\n\"video_surveillance\": false,\n\"floors\": 1,\n\"entrances\": 1\n},\n\"_id\": \"67a3b22c57531ded6f3b23c0\",\n\"name\": \"Test Complex\",\n\"images\": [\n\"http://res.cloudinary.com/dgcka24lm/image/upload/v1738781227/teamchallenge/hoa8lrcu2f7ojr4kdxds.jpg\"\n],\n\"buildings\": [\n{\n\"address\": \"1\",\n\"_id\": \"67a3b22c57531ded6f3b23c1\",\n\"apartments\": []\n},\n{\n\"address\": \"2\",\n\"_id\": \"67a3b22c57531ded6f3b23c2\",\n\"apartments\": []\n},\n{\n\"address\": \"3a\",\n\"_id\": \"67a3b22c57531ded6f3b23c3\",\n\"apartments\": []\n}\n]\n}\n]"
+  "/complexes/{complexID}":
+    "get":
+      "tags":
+        - "Complexes"
+      "summary": "get info about all complexes"
+      "parameters":
+        -
+          "in": "path"
+          "required": true
+          "name": "complexID"
+          "schema":
+            "type": "string"
+            "example": "6760675f58e4cf9dc2be0bdb"
+      "responses":
+        "200":
+          "description": "Success"
+          "content":
+            "application/json":
+              "schema":
+                "type": "object"
+                "example": "{\n\"properties\": {\n\"parking\": false,\n\"security\": false,\n\"access_control\": false,\n\"concierge\": false,\n\"playground\": false,\n\"closed_area\": false,\n\"video_surveillance\": false,\n\"floors\": 1,\n\"entrances\": 1\n},\n\"_id\": \"67a3a0c37ca64083c1ff9799\",\n\"name\": \"Test Complex\",\n\"images\": [\n\"http://res.cloudinary.com/dgcka24lm/image/upload/v1738776771/teamchallenge/nnfjk1lx7jqpyzsflygr.jpg\"\n],\n\"buildings\": [\n{\n\"address\": \"1\",\n\"apartments\": [\n{\n\"number\": 1,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a67f\"\n},\n{\n\"number\": 2,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a680\"\n}\n],\n\"_id\": \"67a89fd9bc86a6c85807a67e\"\n},\n{\n\"address\": \"2\",\n\"apartments\": [\n{\n\"number\": 1,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a682\"\n},\n{\n\"number\": 2,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a683\"\n}\n],\n\"_id\": \"67a89fd9bc86a6c85807a681\"\n}\n]\n}"
+"components":
+  "securitySchemes":
+    "bearerAuth":
+      "type": "http"
+      "scheme": "bearer"
+      "bearerFormat": "JWT"
+  "schemas":
+    "register":
+      "type": "object"
+      "required": "-name -email -password -phone"
+      "properties":
+        "name":
+          "type": "string"
+        "email":
+          "type": "string"
+        "password":
+          "type": "string"
+        "phone":
+          "type": "string"
+        "gender":
+          "type": "string"
+          "enum":
+            - "male"
+            - "female"
+        "avatar":
+          "type": "string"
+          "format": "binary"
+      "example":
+        "email": "Password1@email.com"
+        "name": "Password1@email.com"
+        "password": "Password1"
+        "phone": "+111222333444"
+    "login":
+      "type": "object"
+      "properties":
+        "email":
+          "type": "string"
+        "password":
+          "type": "string"
+      "example":
+        "email": "Password1@email.com"
+        "password": "Password1"
+    "userObject":
+      "type": "object"
+      "example": "{\n\"tokens\": {\n\"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5MTExMDQzfQ.bR55VPwuJyiGNchsbypb4luGRzxbcK73FoU-4jXIxjc\",\n\"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5NzEyMjQzfQ.vdCj3X64mNl6H0GPYcB5XsyS8eVfTOUNqdoQcMV-99c\"\n},\n\"_id\": \"6770447a0a0bcb8470d928ee\",\n\"name\": \"password1@email.com\",\n\"email\": \"Password1@email.com\",\n\"phone\": \"+1234567890\",\n\"avatar\": \"https://avatar.iran.liara.run/username?username=Password1@email.com\",\n\"is_admin\": true,\n\"buildings\": [\n{\n\"residential_complex_id\": \"6760675f58e4cf9dc2be0bdb\",\n\"moderator\": true,\n\"addresses\": [\n{\n\"building\": \"5a\",\n\"apartments\": [\n{\n\"apartment\": 5,\n\"entrance\": 3,\n\"approved\": true,\n\"_id\": \"676efb11d3c3f7fa3ca3471c\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471b\"\n}\n],\n\"_id\": \"676efb11d3c3f7fa3ca3471a\"\n}\n],\n\"tempCode\": \"b4bl7m3xz0ym65f\",\n\"tempCodeTime\": \"1739106011499\"\n}"
+    "update-user":
+      "type": "object"
+      "properties":
+        "email":
+          "type": "string"
+        "name":
+          "type": "string"
+        "password":
+          "type": "string"
+        "phone":
+          "type": "string"
+      "example":
+        "email": "Password1@email.com"
+        "name": "Password1@email.com"
+        "password": "Password1"
+        "phone": "+111222333444"
+    "address":
+      "type": "object"
+      "properties":
+        "residential_complex":
+          "type": "string"
+        "building":
+          "type": "string"
+        "entrance":
+          "type": "number"
+        "apartment":
+          "type": "number"
+      "example":
+        "residential_complex": "Cool complex 666"
+        "building": "7a"
+        "entrance": 1
+        "apartment": 1
+    "complexes":
+      "type": "object"
+      "example": "[\n{\n\"properties\": {\n\"parking\": false,\n\"security\": false,\n\"access_control\": false,\n\"concierge\": false,\n\"playground\": false,\n\"closed_area\": false,\n\"video_surveillance\": false,\n\"floors\": 1,\n\"entrances\": 1\n},\n\"_id\": \"67a3a0c37ca64083c1ff9799\",\n\"name\": \"Test Complex\",\n\"images\": [\n\"http://res.cloudinary.com/dgcka24lm/image/upload/v1738776771/teamchallenge/nnfjk1lx7jqpyzsflygr.jpg\"\n],\n\"buildings\": [\n{\n\"address\": \"1\",\n\"apartments\": [\n{\n\"number\": 1,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a67f\"\n},\n{\n\"number\": 2,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a680\"\n}\n],\n\"_id\": \"67a89fd9bc86a6c85807a67e\"\n},\n{\n\"address\": \"2\",\n\"apartments\": [\n{\n\"number\": 1,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a682\"\n},\n{\n\"number\": 2,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a683\"\n}\n],\n\"_id\": \"67a89fd9bc86a6c85807a681\"\n}\n]\n},\n{\n\"properties\": {\n\"parking\": false,\n\"security\": false,\n\"access_control\": false,\n\"concierge\": false,\n\"playground\": false,\n\"closed_area\": false,\n\"video_surveillance\": false,\n\"floors\": 1,\n\"entrances\": 1\n},\n\"_id\": \"67a3b22c57531ded6f3b23c0\",\n\"name\": \"Test Complex\",\n\"images\": [\n\"http://res.cloudinary.com/dgcka24lm/image/upload/v1738781227/teamchallenge/hoa8lrcu2f7ojr4kdxds.jpg\"\n],\n\"buildings\": [\n{\n\"address\": \"1\",\n\"_id\": \"67a3b22c57531ded6f3b23c1\",\n\"apartments\": []\n},\n{\n\"address\": \"2\",\n\"_id\": \"67a3b22c57531ded6f3b23c2\",\n\"apartments\": []\n},\n{\n\"address\": \"3a\",\n\"_id\": \"67a3b22c57531ded6f3b23c3\",\n\"apartments\": []\n}\n]\n}\n]"
+    "complex":
+      "type": "object"
+      "example": "{\n\"properties\": {\n\"parking\": false,\n\"security\": false,\n\"access_control\": false,\n\"concierge\": false,\n\"playground\": false,\n\"closed_area\": false,\n\"video_surveillance\": false,\n\"floors\": 1,\n\"entrances\": 1\n},\n\"_id\": \"67a3a0c37ca64083c1ff9799\",\n\"name\": \"Test Complex\",\n\"images\": [\n\"http://res.cloudinary.com/dgcka24lm/image/upload/v1738776771/teamchallenge/nnfjk1lx7jqpyzsflygr.jpg\"\n],\n\"buildings\": [\n{\n\"address\": \"1\",\n\"apartments\": [\n{\n\"number\": 1,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a67f\"\n},\n{\n\"number\": 2,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a680\"\n}\n],\n\"_id\": \"67a89fd9bc86a6c85807a67e\"\n},\n{\n\"address\": \"2\",\n\"apartments\": [\n{\n\"number\": 1,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a682\"\n},\n{\n\"number\": 2,\n\"entrance\": 1,\n\"services_debt\": 0,\n\"_id\": \"67a89fd9bc86a6c85807a683\"\n}\n],\n\"_id\": \"67a89fd9bc86a6c85807a681\"\n}\n]\n}"
