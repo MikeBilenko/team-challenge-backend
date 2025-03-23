@@ -58,19 +58,21 @@ const signup = async (req, res) => {
   const tokens = await setTokens(newUser._id, accessToken, refreshToken);
 
   const loggedInUser = await findUserById({ _id: newUser._id }, "-password");
+  console.log("loggedInUser: ", loggedInUser);
 
-  const userEmail = {
-    to: email,
-    subject: "Registration",
-    html: `<h1>Hello, ${name}!</h1>
-        <p>Congratulations!</p><p>You have registered successfully.</p>
-         <p>Your next step is to add your address(addresses) to your profile by filling out the necessary form.</p>
-         <p>If you have any questions, you can always contact our support team.</p>
-        <p style="margin-top: 10px;">Best regards,</p>
-        <p style="margin-top: 10px;">The Teamchallenge Chat Team</p>`,
-  };
+  // const userEmail = {
+  //   to: email,
+  //   subject: "Registration",
+  //   html: `<h1>Hello, ${name}!</h1>
+  //       <p>Congratulations!</p><p>You have registered successfully.</p>
+  //        <p>Your next step is to add your address(addresses) to your profile by filling out the necessary form.</p>
+  //        <p>If you have any questions, you can always contact our support team.</p>
+  //       <p style="margin-top: 10px;">Best regards,</p>
+  //       <p style="margin-top: 10px;">The Teamchallenge Chat Team</p>`,
+  // };
 
-  await sendEmail(userEmail);
+  // const emailResponse = await sendEmail(userEmail);
+  // console.log("email response: ", emailResponse);
 
   res.status(201).json({
     loggedInUser,
