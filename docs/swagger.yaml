@@ -173,7 +173,8 @@ paths:
           description: Not authorized
         "409":
           description: Already registered for that address
-    delete:
+  /users/addresses/delete:
+    put:
       security:
         - bearerAuth: []
       tags:
