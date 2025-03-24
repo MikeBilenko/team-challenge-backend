@@ -2,10 +2,10 @@ openapi: 3.0.1
 info:
   title: Chat
   description: API for the Team Challenge Chat project, main backend microservice
-  version: '1.0'
+  version: "1.0"
 servers:
-  - url: 'https://team-challenge-backend-c55i.onrender.com/'
   - url: http://localhost:4000
+  - url: "https://team-challenge-backend-c55i.onrender.com/"
 tags:
   - name: Auth
     description: registration, login, get current user etc
@@ -13,9 +13,27 @@ tags:
     description: register that a user is living at an address
   - name: Complexes
     description: CRUD for residential complexes
-
-
 paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: register account
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/register"
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/rejisteredUser"
+        "400":
+          description: Incorrect user data
   /auth/login:
     post:
       tags:
@@ -28,15 +46,15 @@ paths:
             schema:
               $ref: "#/components/schemas/login"
       responses:
-        '200':
+        "200":
           description: Success
-          content: 
+          content:
             application/json:
               schema:
                 $ref: "#/components/schemas/userObject"
-        '400':
+        "400":
           description: Incorrect format of email or password
-        '401':
+        "401":
           description: Incorrect email or password
   /auth/logout:
     post:
@@ -52,9 +70,9 @@ paths:
             schema:
               example: {}
       responses:
-        '204': 
+        "204":
           description: Success
-        '401':
+        "401":
           description: Not authorized
   /auth/current:
     get:
@@ -64,13 +82,13 @@ paths:
         - Auth
       summary: get information about the user
       responses:
-        '200': 
+        "200":
           description: Success
-          content: 
+          content:
             application/json:
               schema:
                 $ref: "#/components/schemas/userObject"
-        '401':
+        "401":
           description: Not authorized
   /auth/refresh:
     get:
@@ -80,9 +98,9 @@ paths:
         - Auth
       summary: use refresh (or access) token to get a new token pair
       responses:
-        '200': 
+        "200":
           description: Success
-          content: 
+          content:
             application/json:
               schema:
                 example: |-
@@ -90,7 +108,7 @@ paths:
                     "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwODY5MywiZXhwIjoxNzM5MTEyMjkzfQ._Kb8KYZkLmGAAQcpwzcR_NCmnOLFhsBKEVw2Y0CxvCc",
                     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwODY5MywiZXhwIjoxNzM5NzEzNDkzfQ.AxQT_dRuG3zUx5EetLAHdKRrsRzoAWHy0n0P6iOWQ1k"
                   }
-        '401':
+        "401":
           description: Not authorized
   /auth/forgot-password:
     put:
@@ -111,7 +129,7 @@ paths:
         - in: path
           required: true
           name: secret-code
-          schema: 
+          schema:
             type: string
       responses:
   /auth/update:
@@ -126,9 +144,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/update-user'
+              $ref: "#/components/schemas/update-user"
       responses:
-  
+
   /users/addresses:
     put:
       security:
@@ -141,19 +159,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/address'
+              $ref: "#/components/schemas/address"
       responses:
-        '200': 
+        "200":
           description: Success
-          content: 
+          content:
             application/json:
               schema:
-                $ref: '#/components/schemas/userObject'
-        '400':
+                $ref: "#/components/schemas/userObject"
+        "400":
           description: Address does not exist
-        '401':
+        "401":
           description: Not authorized
-        '409':
+        "409":
           description: Already registered for that address
     delete:
       security:
@@ -166,17 +184,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/address'
+              $ref: "#/components/schemas/address"
       responses:
-        '200': 
+        "200":
           description: Success
-          content: 
+          content:
             application/json:
               schema:
-                $ref: '#/components/schemas/userObject'
-        '400':
+                $ref: "#/components/schemas/userObject"
+        "400":
           description: Address did not exist
-        '401':
+        "401":
           description: Not authorized
   /users/addresses/{userID}:
     patch:
@@ -189,7 +207,7 @@ paths:
         - in: path
           required: true
           name: userID
-          schema: 
+          schema:
             type: string
             example: 6770447a0a0bcb8470d928ee
         - in: query
@@ -217,9 +235,9 @@ paths:
             type: number
             example: 1
       responses:
-        '201': 
+        "201":
           description: Success
-          content: 
+          content:
             application/json:
               schema:
                 example: |-
@@ -235,11 +253,11 @@ paths:
                       "_id": "67a8c5f1f333ff1cc8b58c65"
                     }
                   }
-        '400':
+        "400":
           description: Bad request (no such apartment, no changes made)
-        '401':
+        "401":
           description: Not authorized
-        '403':
+        "403":
           description: You are not an admin
   /users/addresses/{userID}/{complexID}:
     patch:
@@ -252,31 +270,31 @@ paths:
         - in: path
           required: true
           name: userID
-          schema: 
+          schema:
             type: string
             example: 6770447a0a0bcb8470d928ee
         - in: path
           required: true
           name: complexID
-          schema: 
+          schema:
             type: string
             example: 6760675f58e4cf9dc2be0bdb
         - in: query
           name: moderator_status
-          schema: 
+          schema:
             type: string
             example: true
       responses:
-        '200': 
+        "200":
           description: Success
-          content: 
+          content:
             application/json:
               schema:
-        '400':
+        "400":
           description: Bad request
-        '401':
+        "401":
           description: Not authorized
-        '403':
+        "403":
           description: You are not an admin
   /complexes:
     get:
@@ -284,12 +302,12 @@ paths:
         - Complexes
       summary: get info about all complexes
       responses:
-        '200': 
+        "200":
           description: Success
-          content: 
+          content:
             application/json:
               schema:
-                $ref: '#/components/schemas/complexes'
+                $ref: "#/components/schemas/complexes"
   /complexes/{complexID}:
     get:
       tags:
@@ -299,16 +317,16 @@ paths:
         - in: path
           required: true
           name: complexID
-          schema: 
+          schema:
             type: string
             example: 6760675f58e4cf9dc2be0bdb
       responses:
-        '200': 
+        "200":
           description: Success
-          content: 
+          content:
             application/json:
               schema:
-                $ref: '#/components/schemas/complex'
+                $ref: "#/components/schemas/complex"
 components:
   securitySchemes:
     bearerAuth:
@@ -316,6 +334,29 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    register:
+      type: object
+      required: [name, email, password, phone]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        gender:
+          type: string
+          enum: [male, female]
+        avatar:
+          type: string
+          format: binary
+      example:
+        email: Password1@email.com
+        name: Password1@email.com
+        password: Password1
+        phone: "+111222333444"
     login:
       type: object
       properties:
@@ -326,7 +367,7 @@ components:
       example:
         email: Password1@email.com
         password: Password1
-    userObject: 
+    userObject:
       type: object
       example: |-
         {
@@ -364,6 +405,22 @@ components:
           "tempCode": "b4bl7m3xz0ym65f",
           "tempCodeTime": "1739106011499"
         }
+    rejisteredUser:
+      type: object
+      example: |-
+        {
+          "tokens": {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5MTExMDQzfQ.bR55VPwuJyiGNchsbypb4luGRzxbcK73FoU-4jXIxjc",
+            "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NzA0NDdhMGEwYmNiODQ3MGQ5MjhlZSIsImlhdCI6MTczOTEwNzQ0MywiZXhwIjoxNzM5NzEyMjQzfQ.vdCj3X64mNl6H0GPYcB5XsyS8eVfTOUNqdoQcMV-99c"
+          },
+          "_id": "6770447a0a0bcb8470d928ee",
+          "name": "password1@email.com",
+          "email": "Password1@email.com",
+          "phone": "+1234567890",
+          "avatar": "https://avatar.iran.liara.run/username?username=Password1@email.com",
+          "is_admin": true,
+          "buildings": []
+        }
     update-user:
       type: object
       properties:
@@ -373,7 +430,7 @@ components:
           type: string
         password:
           type: string
-        phone: 
+        phone:
           type: string
       example:
         email: Password1@email.com
@@ -389,7 +446,7 @@ components:
           type: string
         entrance:
           type: number
-        apartment: 
+        apartment:
           type: number
       example:
         residential_complex: Cool complex 666

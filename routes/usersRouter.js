@@ -25,8 +25,8 @@ usersRouter.put(
   validateBody(addUserAddressesSchema),
   addUserAddresses
 );
-usersRouter.delete(
-  "/addresses",
+usersRouter.put(
+  "/addresses/delete",
   validateBody(addUserAddressesSchema),
   deleteUserAddress
 );
