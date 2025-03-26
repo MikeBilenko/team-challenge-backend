@@ -297,6 +297,33 @@ paths:
           description: Not authorized
         "403":
           description: You are not an admin
+  /users/user/{userID}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - Users
+      summary: get user by userID
+      parameters:
+        - in: path
+          required: true
+          name: userID
+          schema:
+            type: string
+            example: 6770447a0a0bcb8470d928ee
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/getUser"
+        "400":
+          description: Bad request
+        "401":
+          description: Not authorized
+        "404":
+          description: Nopt found
   /complexes:
     get:
       tags:
@@ -438,6 +465,18 @@ components:
         name: Password1@email.com
         password: Password1
         phone: "+111222333444"
+    getUser:
+      type: object
+      example: |-
+        {
+          "_id": "675ed816f4b878ee9b65415c",
+          "name": "hewel95675++",
+          "email": "hewel95675++@datingel.com",
+          "phone": "+(123)456-7890",
+          "avatar": "",
+          "is_admin": false,
+          "buildings": []
+        }
     address:
       type: object
       properties:
