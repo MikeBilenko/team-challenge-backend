@@ -307,7 +307,7 @@ const setModeratorStatus = async (req, res) => {
 const getUser = async (req, res) => {
   const { userId: _id } = req.params;
   // chatRoomsExtas;
-  const result = await findUserById(_id, "-password, -tokens");
+  const result = await findUserById(_id, "-password -tokens");
   res.json(result);
 };
 
