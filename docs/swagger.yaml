@@ -325,6 +325,25 @@ paths:
         "404":
           description: Nopt found
   /complexes:
+    post:
+      tags:
+        - Complexes
+      summary: create complex. Requires admin access
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/createComplex"
+      responses:
+        "201":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/complex"
+        "400":
+          description: Incorrect user data
     get:
       tags:
         - Complexes
@@ -589,6 +608,57 @@ components:
             ]
           }
         ]
+    createComplex:
+      type: object
+      required: [name, addresses]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        ltd:
+          type: string
+        lng:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: binary
+        parking:
+          type: boolean
+          default: false
+        security:
+          type: boolean
+          default: false
+        access_control:
+          type: boolean
+          default: false
+        concierge:
+          type: boolean
+          default: false
+        playground:
+          type: boolean
+          default: false
+        closed_area:
+          type: boolean
+          default: false
+        video_surveillance:
+          type: boolean
+          default: false
+        floors:
+          type: number
+          default: 1
+        entrances:
+          type: number
+          default: 1
+        addresses:
+          type: array
+          items:
+            type: string
+      example:
+        name: Very cool complex
+        addresses: ["134-a", "7a", "5"]
     complex:
       type: object
       example: |-
