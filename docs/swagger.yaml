@@ -326,6 +326,8 @@ paths:
           description: Nopt found
   /complexes:
     post:
+      security:
+        - bearerAuth: []
       tags:
         - Complexes
       summary: create complex. Requires admin access
@@ -335,6 +337,9 @@ paths:
           multipart/form-data:
             schema:
               $ref: "#/components/schemas/createComplex"
+            encoding:
+              addresses:
+                explode: true
       responses:
         "201":
           description: Success
@@ -400,8 +405,8 @@ components:
           type: string
           format: binary
       example:
-        email: Password1@email.com
-        name: Password1@email.com
+        email: name@email.com
+        name: Name
         password: Password1
         phone: "+111222333444"
     login:
@@ -620,11 +625,9 @@ components:
           type: string
         lng:
           type: string
-        images:
-          type: array
-          items:
-            type: string
-            format: binary
+        image:
+          type: string
+          format: binary
         parking:
           type: boolean
           default: false

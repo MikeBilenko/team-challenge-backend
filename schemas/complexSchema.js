@@ -5,7 +5,7 @@ export const createComplexSchema = Joi.object({
   description: Joi.string(),
   ltd: Joi.string(),
   lng: Joi.string(),
-  images: Joi.array().items(Joi.string()),
+  image: Joi.array().items(Joi.string()),
   parking: Joi.boolean().default(false),
   security: Joi.boolean().default(false),
   access_control: Joi.boolean().default(false),
