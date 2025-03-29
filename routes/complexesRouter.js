@@ -14,6 +14,7 @@ const complexesRouter = express.Router();
 const {
   createComplex,
   updateComplex,
+  updateComplexImages,
   getComplexes,
   getComplex,
   deleteComplex,
@@ -32,6 +33,14 @@ complexesRouter.put(
   authenticate,
   validateBody(updateComplexSchema),
   updateComplex
+);
+complexesRouter.patch(
+  "/:complexId",
+  isValidId,
+  authenticate,
+  upload.array("image", 10),
+  // validateBody(updateComplexSchema),
+  updateComplexImages
 );
 complexesRouter.get("/", getComplexes);
 complexesRouter.get("/:complexId", isValidId, getComplex);
