@@ -115,6 +115,39 @@ const updateComplex = async (req, res) => {
   res.status(200).json(result);
 };
 
+const updateComplexImages = async (req, res) => {
+  const { is_admin } = req.user;
+  if (!is_admin) {
+    throw HttpError(403, `You must be an administrator to commit this action`);
+  }
+  const { complexId: _id } = req.params;
+
+  const uploadedResults = await Promise.all(
+    req.files.map((file) =>
+      cloudinary.uploader.upload(file.path, {
+        folder: "teamchallenge",
+      })
+    )
+  );
+  const images = uploadedResults.map((elem) => elem.url);
+  const paths = req.files.map((elem) => elem.path);
+
+  console.log("images: ", images);
+  console.log("paths: ", paths);
+
+  await paths.forEach((elem) => fs.rm(elem));
+
+  const complex = await findComplexById(_id);
+
+  if (!complex) {
+    throw HttpError(404, `Such a complex does not exist`);
+  }
+  const newImages = [...complex.images, ...images];
+
+  const result = await updateComplexById(_id, { images: newImages });
+  res.status(200).json(result);
+};
+
 const getComplexes = async (req, res) => {
   const result = await getListOfComplexes();
   // console.log("result: ", result);
