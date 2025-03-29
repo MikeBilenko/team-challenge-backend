@@ -175,6 +175,7 @@ const deleteComplex = async (req, res) => {
 export default {
   createComplex: ctrlWrapper(createComplex),
   updateComplex: ctrlWrapper(updateComplex),
+  updateComplexImages: ctrlWrapper(updateComplexImages),
   getComplexes: ctrlWrapper(getComplexes),
   getComplex: ctrlWrapper(getComplex),
   deleteComplex: ctrlWrapper(deleteComplex),
