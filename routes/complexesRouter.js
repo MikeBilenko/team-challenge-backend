@@ -4,6 +4,7 @@ import complexesControllers from "../controllers/complexesControllers.js";
 import {
   createComplexSchema,
   updateComplexSchema,
+  updateComplexImagesSchema,
 } from "../schemas/complexSchema.js";
 import validateBody from "../decorators/validateBody.js";
 import upload from "../middlewares/upload.js";
@@ -39,7 +40,7 @@ complexesRouter.patch(
   isValidId,
   authenticate,
   upload.array("image", 10),
-  // validateBody(updateComplexSchema),
+  validateBody(updateComplexImagesSchema),
   updateComplexImages
 );
 complexesRouter.get("/", getComplexes);
