@@ -45,3 +45,7 @@ export const updateComplexSchema = Joi.object({
     })
   ),
 });
+
+export const updateComplexImagesSchema = Joi.object({
+  images: Joi.array().items(Joi.string()),
+});
