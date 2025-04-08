@@ -6,11 +6,11 @@ const destination = path.resolve("tmp");
 const storage = multer.diskStorage({
   destination,
   // ***filename isn't necessary for cloudinary only for saving in your own file***
-  //   filename: function (req, file, callback) {
-  //     const uniquePrefix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-  //     const filename = `${uniquePrefix}-${file.originalname}`;
-  //     callback(null, filename);
-  //   },
+  filename: function (req, file, callback) {
+    const uniquePrefix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const filename = `${uniquePrefix}-${file.originalname}`;
+    callback(null, filename);
+  },
 });
 
 const limits = {
