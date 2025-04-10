@@ -36,6 +36,7 @@ const signup = async (req, res) => {
 
     const { url } = await cloudinary.uploader.upload(req.file.path, {
       folder: "teamchallenge",
+      upload_preset: "ml_default",
     });
     const { path: oldPath } = req.file;
 
