@@ -1,7 +1,8 @@
 import multer from "multer";
 import path from "path";
 
-const destination = path.resolve("tmp");
+// const destination = path.resolve("tmp");
+const destination = "/tmp";
 
 const storage = multer.diskStorage({
   destination,
