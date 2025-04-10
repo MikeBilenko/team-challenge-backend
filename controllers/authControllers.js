@@ -58,7 +58,7 @@ const signup = async (req, res) => {
   const tokens = await setTokens(newUser._id, accessToken, refreshToken);
 
   const loggedInUser = await findUserById({ _id: newUser._id }, "-password");
-  console.log("loggedInUser: ", loggedInUser);
+  // console.log("loggedInUser: ", loggedInUser);
 
   const userEmail = {
     to: email,
@@ -72,7 +72,7 @@ const signup = async (req, res) => {
   };
 
   const emailResponse = await sendEmail(userEmail);
-  console.log("email response: ", emailResponse);
+  // console.log("email response: ", emailResponse);
 
   res.status(201).json({
     loggedInUser,
