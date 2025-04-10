@@ -32,11 +32,11 @@ const signup = async (req, res) => {
   // ***Add user's picture
   let avatar;
   if (req.file) {
-    console.log("req.file.path:", req.file?.path);
+    // console.log("req.file.path:", req.file?.path);
 
     const { url } = await cloudinary.uploader.upload(req.file.path, {
       folder: "teamchallenge",
-      upload_preset: "ml_default",
+      upload_preset: "ml_default", //This is in order not to use a signature
     });
     const { path: oldPath } = req.file;
 
