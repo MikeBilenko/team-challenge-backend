@@ -20,7 +20,7 @@ import votingsRouter from "./routes/votingsRouter.js";
 import newsChannelRouter from "./routes/newsChannelRouter.js";
 import newsRouter from "./routes/NewsRouter.js";
 import contactInfoRouter from "./routes/contactInfoRouter.js";
-import { startBot } from "./services/telegramBotService.js";
+// import { startBot } from "./services/telegramBotService.js";
 
 // import googleAuthRouter from "./routes/googleAuthRouter.js";
 
