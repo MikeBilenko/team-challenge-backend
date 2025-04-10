@@ -7,7 +7,7 @@ import { login, logout, start } from "./commands.js";
 
 const { BOT_TOKEN } = process.env;
 
-const bot = new TelegramBot(BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(BOT_TOKEN, { polling: false }); // { polling: true } - for launching
 const users = {};
 const userStates = {};
 
