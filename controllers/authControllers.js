@@ -37,12 +37,12 @@ const signup = async (req, res) => {
   if (req.file) {
     // console.log("req.file.path:", req.file?.path);
 
-    const { url } = await pictureUpload.uploader.upload(req.file.path, {
+    const { url } = await cloudinary.uploader.upload(req.file.path, {
       folder: "teamchallenge",
-      // upload_preset: "ml_default", //This is in order not to use a signature
-      timestamp,
-      signature,
-      api_key: CLOUDINARY_API_KEY,
+      upload_preset: "ml_default", //This is in order not to use a signature
+      // timestamp,
+      // signature,
+      // api_key: CLOUDINARY_API_KEY,
     });
     const { path: oldPath } = req.file;
 
