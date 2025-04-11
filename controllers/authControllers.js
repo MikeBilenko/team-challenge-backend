@@ -13,13 +13,16 @@ import sendEmail from "../helpers/sendEmail.js";
 import { findUser, findUserById } from "../services/userServices.js";
 import bcrypt from "bcrypt";
 import { generateRandomCode } from "../helpers/generateRandomCode.js";
-import cloudinary from "../helpers/cloudinary.js";
+// import cloudinary from "../helpers/cloudinary.js";
 import fs from "fs/promises";
+import cloudinary from "../helpers/cloudinary.js";
 
 dotenv.config();
 
-const { JWT_SECRET, DEPLOY_HOST } = process.env;
+const { JWT_SECRET, DEPLOY_HOST, CLOUDINARY_API_KEY } = process.env;
 const DELAY = 30 * 60 * 1000;
+
+const { pictureUpload, timestamp, signature } = cloudinary;
 
 const signup = async (req, res) => {
   const { email, name, gender } = req.body;
@@ -34,9 +37,12 @@ const signup = async (req, res) => {
   if (req.file) {
     // console.log("req.file.path:", req.file?.path);
 
-    const { url } = await cloudinary.uploader.upload(req.file.path, {
+    const { url } = await pictureUpload.uploader.upload(req.file.path, {
       folder: "teamchallenge",
-      upload_preset: "ml_default", //This is in order not to use a signature
+      // upload_preset: "ml_default", //This is in order not to use a signature
+      timestamp,
+      signature,
+      api_key: CLOUDINARY_API_KEY,
     });
     const { path: oldPath } = req.file;
 

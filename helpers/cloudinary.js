@@ -10,4 +10,13 @@ cloudinary.config({
   api_secret: CLOUDINARY_API_SECRET,
 });
 
-export default cloudinary;
+const pictureUpload = cloudinary;
+
+const timestamp = Math.floor(Date.now() / 1000);
+
+const signature = cloudinary.utils.api_sign_request(
+  { timestamp, folder: "teamchallenge" },
+  CLOUDINARY_API_SECRET
+);
+
+export default { pictureUpload, timestamp, signature };
