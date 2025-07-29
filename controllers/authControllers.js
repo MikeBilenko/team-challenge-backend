@@ -168,7 +168,7 @@ const forgotPassword = async (req, res) => {
 
   res.json({
     message:
-      "An email has been sent to your email address to recover your password",
+      "Temp code has been sent to your email address to recover your password",
   });
 };
 
